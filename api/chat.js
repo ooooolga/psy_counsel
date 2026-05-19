@@ -5,11 +5,6 @@ const COZE_API_BASE = (process.env.COZE_API_BASE || 'https://api.coze.com').trim
 const COZE_API_TOKEN = (process.env.COZE_API_TOKEN || '').trim();
 const COZE_BOT_ID = (process.env.COZE_BOT_ID || '').trim();
 
-export default async function handler(req) {
-  if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });
-  }
-
   try {
     const { message, conversationId } = await req.json();
     const userMessage = String(message || '').trim();

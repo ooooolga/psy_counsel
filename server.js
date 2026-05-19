@@ -1,33 +1,29 @@
 /**
- * 事事如嗦 — 后端服务
- * Coze 配置项（均在项目根目录 .env 中设置）：
- *   COZE_API_BASE   — API 地址，国内默认 https://api.coze.cn
- *   COZE_API_TOKEN  — 个人访问令牌（PAT），以 pat_ 开头
- *   COZE_BOT_ID     — 智能体 ID（Coze 页面 URL 中 bot/ 后的数字）
- *   COZE_USER_ID    — 用户标识，用于隔离会话
- *   DEMO_MODE       — 未配置 Coze 时是否使用演示回复（true/false）
- *   PORT            — 本地服务端口，默认 3000
+ * 事事如嗦 — 后端服务（已完美适配 Vercel 部署环境）
  */
-require('dotenv').config();
+// 移除本地 dotenv 的硬加载，Vercel 会自动注入环境变量
+if (process.env.NODE_ENV !== 'production') {
+  try {
+    require('dotenv').config();
+  } catch (e) {
+    /* 本地未安装 dotenv 时忽略 */
+  }
+}
 
 const express = require('express');
 const path = require('path');
 
 const app = express();
-const PORT = Number(process.env.PORT) || 3000;
 
-/** @type {string} Coze API 根地址（只填域名，不要带 /v3/chat） */
+/** @type {string} Coze API 根地址 */
 function normalizeCozeApiBase(raw) {
   let base = (raw || 'https://api.coze.cn').trim().replace(/\/$/, '');
   base = base.replace(/\/v3\/chat\/?$/i, '');
   return base;
 }
 const COZE_API_BASE = normalizeCozeApiBase(process.env.COZE_API_BASE);
-/** @type {string} Coze 个人访问令牌 (API Key) */
 const COZE_API_TOKEN = (process.env.COZE_API_TOKEN || '').trim();
-/** @type {string} Coze 智能体 Bot ID */
 const COZE_BOT_ID = (process.env.COZE_BOT_ID || '').trim();
-/** @type {string} 终端用户 ID，用于 Coze 会话隔离 */
 const COZE_USER_ID = (process.env.COZE_USER_ID || 'user_local_001').trim();
 const DEMO_MODE = process.env.DEMO_MODE !== 'false';
 
@@ -35,6 +31,11 @@ const cozeConfigured = Boolean(COZE_API_TOKEN && COZE_BOT_ID);
 
 app.use(express.json({ limit: '1mb' }));
 app.use(express.static(path.join(__dirname)));
+
+// 核心修复一：显式映射根路由，彻底砸碎 "Cannot GET /" 报错
+app.get('/', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 app.get('/api/health', (_req, res) => {
   res.json({
@@ -106,7 +107,7 @@ app.post('/api/chat', async (req, res) => {
   if (!cozeConfigured) {
     if (!DEMO_MODE) {
       writeSse(res, 'error', {
-        message: '尚未配置 Coze API。请复制 .env.example 为 .env 并填入 COZE_API_TOKEN 与 COZE_BOT_ID。',
+        message: '尚未配置 Coze API。请在 Vercel 平台的 Settings -> Environment Variables 中填入 COZE_API_TOKEN 与 COZE_BOT_ID。',
       });
       return res.end();
     }
@@ -215,18 +216,16 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log('');
-  console.log('  🍜 事事如嗦 · 嗦语 已启动');
-  console.log(`  👉 在浏览器打开: http://localhost:${PORT}`);
-  console.log('');
-  if (cozeConfigured) {
-    console.log('  ✅ Coze API 已配置，将使用真实智能体回复');
-  } else if (DEMO_MODE) {
-    console.log('  💡 当前为演示模式（未配置 .env 中的 Coze 密钥）');
-    console.log('     API 准备好后，复制 .env.example → .env 并填入密钥即可');
-  } else {
-    console.log('  ⚠️  未配置 Coze，且 DEMO_MODE=false，发送消息会提示配置错误');
-  }
-  console.log('');
-});
+// 核心修复二：仅在本地非生产环境启动端口独占
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = Number(process.env.PORT) || 3000;
+  app.listen(PORT, () => {
+    console.log('');
+    console.log('  🍜 事事如嗦 · 嗦语 已启动');
+    console.log(`  👉 在浏览器打开: http://localhost:${PORT}`);
+    console.log('');
+  });
+}
+
+// 核心修复三：必须将 app 导出，否则 Vercel 的 Cloud Function 无法抓取 Express 路由
+module.exports = app;

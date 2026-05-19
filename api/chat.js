@@ -5,10 +5,6 @@ const COZE_API_BASE = (process.env.COZE_API_BASE || 'https://api.coze.com').trim
 const COZE_API_TOKEN = (process.env.COZE_API_TOKEN || '').trim();
 const COZE_BOT_ID = (process.env.COZE_BOT_ID || '').trim();
 
-export const config = {
-  runtime: 'edge', // 启用高性能 Edge 运行时，完美支持 Coze 国际版的流式传输，绝不卡顿
-};
-
 export default async function handler(req) {
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405 });

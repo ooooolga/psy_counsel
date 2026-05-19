@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>事事如嗦 - 你的深夜陪伴助手</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            oat: '#F3EBDD',
+            oatDeep: '#E8DFD0',
+            coffee: '#5C4A3A',
+            coffeeDark: '#4A3F35',
+            millet: '#DAB671',
+            milletSoft: '#F0E2C8',
+            sage: '#B0C4A4',
+            mist: '#9A8B7A',
+          },
+          fontFamily: {
+            brand: ['"ZCOOL KuaiLe"', '"PingFang SC"', 'sans-serif'],
+            sans: ['"Noto Sans SC"', '"PingFang SC"', '"Microsoft YaHei"', 'sans-serif'],
+          },
+          boxShadow: {
+            soft: '0 4px 24px rgba(74, 63, 53, 0.08)',
+            card: '0 2px 12px rgba(74, 63, 53, 0.05)',
+          },
+          borderRadius: {
+            bubble: '1.25rem',
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    html, body { height: 100%; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: #D4C9B8; border-radius: 999px; }
+    .bubble-user {
+      background: linear-gradient(145deg, #6B5344 0%, #5C4A3A 100%);
+    }
+    .chat-pane {
+      background-color: #F3EBDD;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='108' r='72' fill='none' stroke='%235C4A3A' stroke-width='3' opacity='0.06'/%3E%3Cpath d='M55 52 L145 52' stroke='%235C4A3A' stroke-width='3' stroke-linecap='round' opacity='0.05'/%3E%3Cpath d='M68 48 L132 56' stroke='%235C4A3A' stroke-width='2.5' stroke-linecap='round' opacity='0.04'/%3E%3Cpath d='M100 52 Q118 95 100 138 Q82 95 100 52' fill='none' stroke='%23DAB671' stroke-width='2.5' opacity='0.07'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center 42%;
+      background-size: min(420px, 70vw);
+    }
+    /* 嗦语思考中 — 拉面动画（CSS 圆条，各浏览器兼容） */
+    .noodle-thinking {
+      min-width: 160px;
+    }
+    .noodle-stage {
+      position: relative;
+      height: 56px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-top: 8px;
+    }
+    .noodle-chopstick {
+      position: absolute;
+      top: 2px;
+      width: 28px;
+      height: 2px;
+      background: #5C4A3A;
+      opacity: 0.2;
+      border-radius: 999px;
+    }
+    .noodle-chopstick.left { left: 22px; transform: rotate(18deg); }
+    .noodle-chopstick.right { right: 22px; transform: rotate(-18deg); }
+    .noodle-strands {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 7px;
+      height: 44px;
+      z-index: 1;
+    }
+    .noodle-strand {
+      width: 5px;
+      height: 38px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #E8C88A 0%, #DAB671 55%, #CFA85E 100%);
+      transform-origin: center top;
+      animation: noodle-pull 1.6s ease-in-out infinite;
+      box-shadow: 0 1px 0 rgba(92, 74, 58, 0.08);
+    }
+    .noodle-strand.s2 {
+      animation-delay: 0.12s;
+      height: 42px;
+    }
+    .noodle-strand.s3 {
+      animation-delay: 0.24s;
+    }
+    .noodle-bowl {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 72px;
+      height: 14px;
+      border: 2px solid rgba(92, 74, 58, 0.14);
+      border-top: none;
+      border-radius: 0 0 50% 50% / 0 0 100% 100%;
+    }
+    @keyframes noodle-pull {
+      0%, 100% {
+        transform: scaleY(1.2) scaleX(1);
+        border-radius: 999px;
+      }
+      30% {
+        transform: scaleY(1.45) scaleX(0.88);
+        border-radius: 999px;
+      }
+      50% {
+        transform: scaleY(0.32) scaleX(1.35);
+        border-radius: 35%;
+      }
+      70% {
+        transform: scaleY(0.5) scaleX(1.2);
+        border-radius: 40%;
+      }
+    }
+    .noodle-hint {
+      animation: hint-pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes hint-pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+  </style>
+</head>
+<body class="bg-oat text-coffeeDark antialiased h-full overflow-hidden font-sans">
+
+  <div class="flex flex-col h-full max-w-[1400px] mx-auto">
+    <!-- 顶部导航 -->
+    <header class="shrink-0 flex items-center justify-between px-4 md:px-6 py-3 border-b border-oatDeep/80 bg-oat/95 backdrop-blur-sm">
+      <div class="flex items-center gap-3 min-w-0">
+        <img
+          src="assets/logo.png"
+          alt="事事如嗦 Logo"
+          class="w-10 h-10 md:w-11 md:h-11 rounded-xl object-contain shrink-0"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"
+        />
+        <div class="hidden w-10 h-10 rounded-xl bg-millet/30 items-center justify-center text-lg shrink-0" aria-hidden="true">🍜</div>
+        <div class="min-w-0">
+          <h1 class="font-brand text-xl md:text-2xl text-coffee tracking-wide truncate">事事如嗦</h1>
+          <p class="text-[11px] md:text-xs text-mist truncate">嗦语 · 像嗦面一样把烦恼嗦走</p>
+        </div>
+      </div>
+      <button
+        id="btn-new-chat-top"
+        type="button"
+        class="md:hidden shrink-0 px-3 py-1.5 rounded-full text-sm font-medium text-coffee border border-oatDeep hover:bg-white/50 transition-colors"
+      >
+        新嗦一碗
+      </button>
+    </header>
+
+    <div class="flex flex-1 min-h-0">
+      <!-- 左侧历史 -->
+      <aside class="w-72 shrink-0 hidden md:flex flex-col bg-oatDeep/35 border-r border-oatDeep">
+        <div class="p-4 border-b border-oatDeep/80">
+          <button
+            id="btn-new-chat"
+            type="button"
+            class="w-full py-2.5 rounded-2xl bg-millet hover:bg-[#CFA85E] text-coffeeDark text-sm font-medium shadow-soft transition-colors"
+          >
+            ＋ 新嗦一碗
+          </button>
+        </div>
+
+        <nav id="history-list" class="flex-1 overflow-y-auto p-3 space-y-1" aria-label="历史对话"></nav>
+
+        <footer class="p-4 border-t border-oatDeep/80 space-y-2 text-xs text-mist">
+          <p id="status-badge" class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-sage animate-pulse"></span>
+            <span>连接中…</span>
+          </p>
+          <p class="text-[11px] leading-relaxed text-mist/90">
+            危机干预热线：
+            <a href="tel:4001619995" class="text-coffee hover:underline">400-161-9995</a>
+          </p>
+        </footer>
+      </aside>
+
+      <!-- 右侧聊天 -->
+      <main class="flex-1 flex flex-col min-w-0 min-h-0">
+        <div class="px-4 md:px-8 py-3 border-b border-oatDeep/60 bg-oat/70 backdrop-blur-sm shrink-0">
+          <h2 id="chat-title" class="text-base md:text-lg font-medium text-coffee">嗦语在等你</h2>
+          <p id="chat-subtitle" class="text-sm text-mist mt-0.5">把那些堵在心里的硬面条，慢慢嗦出来</p>
+        </div>
+
+        <div
+          id="messages"
+          class="chat-pane flex-1 overflow-y-auto px-4 md:px-8 py-6 space-y-4"
+          role="log"
+          aria-live="polite"
+          aria-relevant="additions"
+        ></div>
+
+        <footer class="shrink-0 px-4 md:px-8 py-4 border-t border-oatDeep bg-oat">
+          <p class="text-[11px] text-mist/90 mb-2 text-center md:text-left">
+            本服务仅供情绪陪伴，不能替代专业医疗诊断。紧急危机请拨打
+            <a href="tel:4001619995" class="text-coffee hover:underline">400-161-9995</a>
+          </p>
+          <form id="chat-form" class="flex gap-3 items-end max-w-3xl mx-auto md:mx-0">
+            <label class="sr-only" for="message-input">输入消息</label>
+            <textarea
+              id="message-input"
+              rows="1"
+              placeholder="今晚想嗦点什么口味的委屈？"
+              class="flex-1 resize-none max-h-32 rounded-3xl border border-oatDeep bg-white/90 px-4 py-3 text-[15px] text-coffeeDark placeholder:text-mist/80 focus:outline-none focus:ring-2 focus:ring-millet/40 focus:border-millet/60 shadow-card transition-shadow"
+            ></textarea>
+            <button
+              id="btn-send"
+              type="submit"
+              class="shrink-0 px-5 py-3 rounded-3xl bg-coffee hover:bg-coffeeDark text-white font-medium shadow-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              发送
+            </button>
+          </form>
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/app.js?v=5"></script>
+</body>
+</html>

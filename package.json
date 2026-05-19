@@ -1,0 +1,16 @@
+{
+  "name": "psych-counseling-chat",
+  "version": "1.0.0",
+  "description": "心理咨询聊天网页 — 对接 Coze API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}
